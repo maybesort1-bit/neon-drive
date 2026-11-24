@@ -10,53 +10,51 @@
     --bg: #070913;
     --panel: rgba(14, 19, 38, 0.92);
     --border: rgba(0, 240, 255, 0.28);
-    --accent: #00f0ff;
+    --cyan: #00f0ff;
     --pink: #ff2e93;
     --gold: #ffd166;
     --green: #2ef2a6;
-    --red: #ff4d4d;
-    --text: #f3f6ff;
-    --muted: #8f9cc4;
+    --text: #f4f7ff;
+    --muted: #93a1c9;
   }
   * { box-sizing: border-box; user-select: none; -webkit-user-select: none; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
-    height: 100vh;
-    width: 100vw;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  .wrap {
-    position: relative;
+  .game-shell {
     width: 100%;
-    max-width: 500px;
-    height: 100vh;
-    background: #090c1a;
+    max-width: 480px;
+    height: 100dvh;
+    position: relative;
     overflow: hidden;
-    box-shadow: 0 0 50px rgba(0,0,0,0.85);
+    background: #0a0d1c;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
   }
-  canvas {
-    display: block;
+  canvas#roadCanvas {
     width: 100%;
     height: 100%;
+    display: block;
     touch-action: none;
   }
 
   /* ВЕРХНИЙ HUD */
-  .hud {
+  .hud-top {
     position: absolute;
     top: 10px;
     left: 10px;
     right: 10px;
+    z-index: 10;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     pointer-events: none;
-    z-index: 10;
   }
   .hud-row {
     display: flex;
@@ -74,27 +72,24 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
   }
-  .money { color: var(--gold); }
-  .speed { color: var(--accent); font-variant-numeric: tabular-nums; }
-  .btn-pause {
+  .pause-btn {
     pointer-events: auto;
     background: var(--panel);
     border: 1px solid var(--border);
     color: var(--text);
-    width: 36px;
-    height: 36px;
-    border-radius: 11px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     font-weight: 900;
+    font-size: 14px;
     cursor: pointer;
   }
-
-  /* ШКАЛЫ ТОПЛИВА И ПРОЧНОСТИ */
-  .bars {
+  .bars-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
   }
   .bar-box {
     background: var(--panel);
@@ -102,60 +97,47 @@
     border-radius: 10px;
     padding: 5px 8px;
   }
-  .bar-top {
+  .bar-head {
     display: flex;
     justify-content: space-between;
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--muted);
     margin-bottom: 3px;
   }
   .bar-track {
-    width: 100%;
     height: 6px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.1);
     border-radius: 4px;
     overflow: hidden;
   }
   .bar-fill {
     height: 100%;
+    border-radius: 4px;
     transition: width 0.15s;
   }
-
-  /* НАВИГАТОР / ЗАКАЗ */
-  .navi-banner {
-    background: rgba(12, 18, 38, 0.94);
+  .nav-banner {
+    background: rgba(12, 22, 46, 0.92);
     border: 1px solid rgba(46, 242, 166, 0.45);
-    border-radius: 14px;
-    padding: 8px 12px;
+    border-radius: 12px;
+    padding: 6px 12px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--green);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  /* ПОДНЯТЫЙ БЛОК УПРАВЛЕНИЯ (ЧУТЬ НИЖЕ СЕРЕДИНЫ ЭКРАНА) */
+  .controls-raised {
+    position: absolute;
+    top: 56%;
+    left: 12px;
+    right: 12px;
+    z-index: 15;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  }
-  .navi-title { font-size: 11px; color: var(--green); font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; }
-  .navi-desc { font-size: 13px; font-weight: 700; color: var(--text); }
-  .navi-dist {
-    background: rgba(46, 242, 166, 0.15);
-    border: 1px solid var(--green);
-    color: var(--green);
-    padding: 4px 9px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 900;
-    white-space: nowrap;
-  }
-
-  /* УПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНА */
-  .controls {
-    position: absolute;
-    bottom: 14px;
-    left: 12px;
-    right: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    z-index: 12;
     pointer-events: none;
   }
   .ctrl-group {
@@ -163,43 +145,60 @@
     gap: 10px;
     pointer-events: auto;
   }
-  .drive-btn {
+  .ctrl-btn {
     width: 68px;
     height: 68px;
     border-radius: 18px;
-    background: rgba(16, 23, 48, 0.78);
-    border: 2px solid rgba(0, 240, 255, 0.35);
+    border: 2px solid rgba(0, 240, 255, 0.45);
+    background: rgba(10, 16, 36, 0.58);
+    backdrop-filter: blur(4px);
     color: #fff;
-    font-size: 24px;
+    font-size: 13px;
     font-weight: 900;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(4px);
+    gap: 2px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
     touch-action: none;
+    cursor: pointer;
+    transition: transform 0.08s, background 0.08s;
   }
-  .drive-btn small { font-size: 9px; letter-spacing: 0.5px; opacity: 0.85; margin-top: 2px; }
-  .drive-btn:active, .drive-btn.pressed {
+  .ctrl-btn span.arrow {
+    font-size: 22px;
+    line-height: 1;
+  }
+  .ctrl-btn.pressed, .ctrl-btn:active {
+    transform: scale(0.92);
     background: rgba(0, 240, 255, 0.32);
-    border-color: var(--accent);
-    transform: scale(0.95);
+    border-color: var(--cyan);
   }
-  .drive-btn.brake { border-color: rgba(255, 77, 77, 0.45); }
-  .drive-btn.brake:active, .drive-btn.brake.pressed { background: rgba(255, 77, 77, 0.35); border-color: var(--red); }
-  .drive-btn.gas { border-color: rgba(46, 242, 166, 0.45); height: 80px; }
-  .drive-btn.gas:active, .drive-btn.gas.pressed { background: rgba(46, 242, 166, 0.32); border-color: var(--green); }
+  .ctrl-btn.brake {
+    border-color: rgba(255, 46, 147, 0.55);
+  }
+  .ctrl-btn.brake.pressed, .ctrl-btn.brake:active {
+    background: rgba(255, 46, 147, 0.36);
+    border-color: var(--pink);
+  }
+  .ctrl-btn.gas {
+    border-color: rgba(46, 242, 166, 0.55);
+  }
+  .ctrl-btn.gas.pressed, .ctrl-btn.gas:active {
+    background: rgba(46, 242, 166, 0.34);
+    border-color: var(--green);
+  }
 
-  /* МОДАЛЬНЫЕ ОКНА (МЕНЮ, ГАРАЖ, ПАУЗА) */
+  /* МОДАЛЬНЫЕ ОКНА */
   .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(6, 9, 20, 0.9);
+    background: rgba(6, 9, 20, 0.88);
     backdrop-filter: blur(8px);
+    z-index: 30;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 30;
     padding: 16px;
   }
   .overlay.hidden { display: none; }
@@ -211,23 +210,22 @@
     border-radius: 22px;
     padding: 20px 18px;
     text-align: center;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.8);
-    max-height: 92vh;
+    max-height: 92dvh;
     overflow-y: auto;
   }
   .title {
     font-size: 26px;
     font-weight: 900;
-    background: linear-gradient(90deg, var(--accent), #fff, var(--gold));
+    background: linear-gradient(90deg, var(--cyan), #fff, var(--gold));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 4px;
   }
   .sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
-
   .btn {
     width: 100%;
-    padding: 13px;
+    padding: 13px 14px;
+    margin-bottom: 9px;
     border-radius: 14px;
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.08);
@@ -235,23 +233,22 @@
     font-size: 15px;
     font-weight: 800;
     cursor: pointer;
-    margin-bottom: 8px;
-    transition: 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .btn.primary {
-    background: linear-gradient(135deg, var(--accent), #2b7fff);
-    color: #051020;
+    background: linear-gradient(135deg, var(--cyan), #2b7fff);
+    color: #051021;
     border: none;
-    box-shadow: 0 8px 22px rgba(0, 240, 255, 0.3);
+    justify-content: center;
+    font-size: 16px;
   }
-  .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-
-  /* КАРТОЧКИ ГАРАЖА И ТЮНИНГА */
   .garage-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-bottom: 12px;
+    margin: 10px 0 14px;
     text-align: left;
   }
   .upg-card {
@@ -260,8 +257,8 @@
     border-radius: 12px;
     padding: 9px;
   }
-  .upg-name { font-size: 12px; font-weight: 800; color: var(--text); }
-  .upg-lvl { font-size: 11px; color: var(--accent); margin: 2px 0 6px; }
+  .upg-card h4 { font-size: 12px; color: var(--cyan); margin-bottom: 2px; }
+  .upg-card p { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
   .upg-btn {
     width: 100%;
     padding: 6px;
@@ -273,90 +270,101 @@
     font-weight: 900;
     cursor: pointer;
   }
-  .upg-btn:disabled { background: rgba(255,255,255,0.12); color: var(--muted); cursor: not-allowed; }
-
+  .upg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .cars-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 6px;
+    margin-bottom: 12px;
   }
-  .car-card {
+  .car-chip {
     background: rgba(0,0,0,0.35);
-    border: 2px solid transparent;
-    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
     padding: 8px 4px;
-    cursor: pointer;
+    color: var(--text);
     font-size: 11px;
     font-weight: 800;
+    cursor: pointer;
   }
-  .car-card.active { border-color: var(--accent); background: rgba(0,240,255,0.12); }
-  .car-dot { width: 22px; height: 12px; border-radius: 4px; margin: 0 auto 5px; }
+  .car-chip.active { border-color: var(--green); background: rgba(46, 242, 166, 0.16); }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <canvas id="gameCanvas"></canvas>
+<div class="game-shell">
+  <canvas id="roadCanvas"></canvas>
 
-  <div class="hud">
+  <div class="hud-top">
     <div class="hud-row">
-      <div class="pill money" id="hudMoney">$ 0</div>
-      <div class="pill speed" id="hudSpeed">0 км/ч</div>
-      <div class="pill" id="hudTrips">Заказов: 0</div>
-      <button class="btn-pause" id="pauseBtn" title="Пауза (Esc)">II</button>
+      <div class="pill" style="color:var(--gold)">Баланс: $<span id="moneyVal">0</span></div>
+      <div class="pill" style="color:var(--cyan)"><span id="speedVal">0</span> км/ч</div>
+      <div class="pill">Заказы: <span id="tripsVal">0</span></div>
+      <button class="pause-btn" id="pauseBtn">II</button>
     </div>
-
-    <div class="bars">
+    <div class="bars-grid">
       <div class="bar-box">
-        <div class="bar-top"><span>ТОПЛИВО</span><span id="fuelPct">100%</span></div>
-        <div class="bar-track"><div class="bar-fill" id="fuelFill" style="width:100%; background:#ffd166;"></div></div>
+        <div class="bar-head"><span>ТОПЛИВО</span><span id="fuelPct">100%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="fuelFill" style="width:100%;background:var(--gold)"></div></div>
       </div>
       <div class="bar-box">
-        <div class="bar-top"><span>ПРОЧНОСТЬ</span><span id="hpPct">100%</span></div>
-        <div class="bar-track"><div class="bar-fill" id="hpFill" style="width:100%; background:#2ef2a6;"></div></div>
+        <div class="bar-head"><span>ПРОЧНОСТЬ</span><span id="hpPct">100%</span></div>
+        <div class="bar-track"><div class="bar-fill" id="hpFill" style="width:100%;background:var(--green)"></div></div>
       </div>
     </div>
-
-    <div class="navi-banner">
-      <div>
-        <div class="navi-title" id="naviStatus">ПОИСК ПАССАЖИРА</div>
-        <div class="navi-desc" id="naviDesc">Едьте к зелёной зоне посадки</div>
-      </div>
-      <div class="navi-dist" id="naviDist">250 м</div>
-    </div>
+    <div class="nav-banner" id="navBanner">НАВИГАТОР: Едьте вперёд к точке посадки клиента</div>
   </div>
 
-  <!-- СЕНСОРНЫЕ ПЕДАЛИ И РУЛЬ -->
-  <div class="controls">
+  <!-- КНОПКИ ПОДНЯТЫ ЧУТЬ НИЖЕ СЕРЕДИНЫ ЭКРАНА -->
+  <div class="controls-raised" id="touchControls">
     <div class="ctrl-group">
-      <button class="drive-btn" id="btnLeft">◀<small>ВЛЕВО</small></button>
-      <button class="drive-btn" id="btnRight">▶<small>ВПРАВО</small></button>
+      <button class="ctrl-btn" id="btnLeft"><span class="arrow">◀</span><span>ВЛЕВО</span></button>
+      <button class="ctrl-btn" id="btnRight"><span class="arrow">▶</span><span>ВПРАВО</span></button>
     </div>
     <div class="ctrl-group">
-      <button class="drive-btn brake" id="btnBrake">■<small>ТОРМОЗ</small></button>
-      <button class="drive-btn gas" id="btnGas">▲<small>ГАЗ</small></button>
+      <button class="ctrl-btn brake" id="btnBrake"><span class="arrow">▼</span><span>ТОРМОЗ</span></button>
+      <button class="ctrl-btn gas" id="btnGas"><span class="arrow">▲</span><span>ГАЗ</span></button>
     </div>
   </div>
 
   <!-- ГЛАВНОЕ МЕНЮ И ГАРАЖ -->
   <div class="overlay" id="menuOverlay">
     <div class="modal">
-      <div class="title">НЕОН ДРАЙВ: ТАКСИ</div>
-      <div class="sub">Симулятор ночного города • Гараж и заказы</div>
+      <div class="title">НЕОН ДРАЙВ</div>
+      <div class="sub">Симулятор ночного такси • Удобное управление</div>
 
-      <div style="font-size:12px; color:var(--gold); font-weight:800; margin-bottom:10px;" id="menuBank">Баланс: $ 0</div>
+      <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px;">
+        Касса: $<span id="menuMoney">0</span> • Рекорд смен: <span id="menuBest">0</span> заказов
+      </div>
 
-      <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">Выбор автомобиля:</div>
       <div class="cars-row" id="carsRow"></div>
 
-      <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">Тюнинг в гараже:</div>
-      <div class="garage-grid" id="garageGrid"></div>
+      <div class="garage-grid">
+        <div class="upg-card">
+          <h4>Двигатель Ур.<span id="lvlEngine">1</span></h4>
+          <p>Макс. скорость и разгон</p>
+          <button class="upg-btn" id="buyEngine">Улучшить ($150)</button>
+        </div>
+        <div class="upg-card">
+          <h4>Бензобак Ур.<span id="lvlTank">1</span></h4>
+          <p>Меньше расход топлива</p>
+          <button class="upg-btn" id="buyTank">Улучшить ($150)</button>
+        </div>
+        <div class="upg-card">
+          <h4>Броня кузова Ур.<span id="lvlArmor">1</span></h4>
+          <p>Меньше урон при ДТП</p>
+          <button class="upg-btn" id="buyArmor">Улучшить ($150)</button>
+        </div>
+        <div class="upg-card">
+          <h4>VIP-тариф Ур.<span id="lvlVip">1</span></h4>
+          <p>Больше оплата за заказ</p>
+          <button class="upg-btn" id="buyVip">Улучшить ($200)</button>
+        </div>
+      </div>
 
       <button class="btn primary" onclick="startShift()">ВЫЕХАТЬ НА СМЕНУ</button>
-      <div style="font-size:11px; color:var(--muted); margin-top:6px;">
-        ПК: Стрелки / WASD (Газ, Тормоз, Руль), Esc — Пауза.<br>
-        Останавливайтесь в зелёных зонах посадки и высадки!
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+        Тормозите в зелёной зоне у обочины, чтобы забрать или высадить пассажира!
       </div>
     </div>
   </div>
@@ -365,21 +373,21 @@
   <div class="overlay hidden" id="pauseOverlay">
     <div class="modal">
       <div class="title">ПАУЗА</div>
-      <div class="sub">Смена приостановлена (клавиша Esc)</div>
-      <button class="btn primary" onclick="togglePause(false)">Продолжить</button>
+      <div class="sub">Смена приостановлена (Esc)</div>
+      <button class="btn primary" onclick="togglePause(false)">Продолжить смену</button>
       <button class="btn" id="soundBtn" onclick="toggleSound()">Звук: Вкл</button>
-      <button class="btn" onclick="returnToGarage()">В гараж / Меню</button>
+      <button class="btn" onclick="returnToGarage()">В гараж и меню</button>
     </div>
   </div>
 
-  <!-- КОНЕЦ СМЕНЫ -->
-  <div class="overlay hidden" id="endOverlay">
+  <!-- ИТОГ СМЕНЫ -->
+  <div class="overlay hidden" id="overOverlay">
     <div class="modal">
-      <div class="title" id="endTitle">СМЕНА ОКОНЧЕНА</div>
-      <div class="sub" id="endReason">Закончилось топливо!</div>
-      <div style="font-size:18px; font-weight:900; color:var(--gold); margin-bottom:14px;" id="endEarned">Заработано: $ 0</div>
-      <button class="btn primary" onclick="returnToGarage()">В гараж (Тюнинг и ремонт)</button>
-      <button class="btn" onclick="startShift()">Выехать снова</button>
+      <div class="title" id="overTitle">СМЕНА ОКОНЧЕНА</div>
+      <div class="sub" id="overReason">Закончилось топливо!</div>
+      <div style="font-size:18px;font-weight:900;color:var(--gold);margin-bottom:14px;" id="overStats">Заработано: $0</div>
+      <button class="btn primary" onclick="startShift()">Новая смена</button>
+      <button class="btn" onclick="returnToGarage()">Открыть гараж</button>
     </div>
   </div>
 </div>
@@ -390,16 +398,15 @@ if (window.Telegram && window.Telegram.WebApp) {
   window.Telegram.WebApp.expand();
 }
 
-// ЗВУКОВОЙ ДВИЖОК
-const Sfx = {
+const Sound = {
   ctx: null,
-  enabled: true,
+  on: true,
   init() {
     if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (this.ctx.state === 'suspended') this.ctx.resume();
   },
-  tone(freq, type, dur, vol, slide = null) {
-    if (!this.enabled) return;
+  tone(freq, type, dur, vol, slide) {
+    if (!this.on) return;
     this.init();
     const o = this.ctx.createOscillator();
     const g = this.ctx.createGain();
@@ -411,156 +418,52 @@ const Sfx = {
     o.connect(g); g.connect(this.ctx.destination);
     o.start(); o.stop(this.ctx.currentTime + dur);
   },
-  cash() {
-    this.tone(587, 'triangle', 0.12, 0.18);
-    setTimeout(() => this.tone(880, 'triangle', 0.22, 0.2), 90);
-  },
-  crash() { this.tone(110, 'sawtooth', 0.32, 0.26, 36); },
-  pickup() { this.tone(440, 'sine', 0.16, 0.16, 660); },
-  fuel() { this.tone(360, 'sine', 0.2, 0.15, 540); }
-};
-
-// СОХРАНЕНИЯ И ГАРАЖ
-let save = JSON.parse(localStorage.getItem('nd_taxi_save') || 'null') || {
-  money: 150,
-  car: 0,
-  ownedCars: [true, false, false],
-  upg: { engine: 1, tank: 1, armor: 1, tips: 1 }
+  coin() { this.tone(660, 'triangle', 0.16, 0.18, 990); },
+  crash() { this.tone(110, 'sawtooth', 0.3, 0.25, 35); },
+  pickup() { this.tone(440, 'sine', 0.2, 0.18, 720); }
 };
 
 const CARS = [
-  { name: 'Городской Седан', color: '#ffd166', accent: '#00f0ff', price: 0, speedBonus: 0 },
-  { name: 'Кибер Купе', color: '#00f0ff', accent: '#ff2e93', price: 450, speedBonus: 25 },
-  { name: 'Неон Суперкар', color: '#ff2e93', accent: '#ffd166', price: 1100, speedBonus: 55 }
+  { id: 0, name: 'Жёлтое Такси', color: '#ffd166', accent: '#111', speedBonus: 0, price: 0 },
+  { id: 1, name: 'Кибер Купе', color: '#00f0ff', accent: '#ff2e93', speedBonus: 28, price: 500 },
+  { id: 2, name: 'Неон Суперкар', color: '#ff2e93', accent: '#ffd166', speedBonus: 58, price: 1200 }
 ];
 
-const UPGRADES = [
-  { key: 'engine', name: 'Двигатель', baseCost: 120 },
-  { key: 'tank', name: 'Бензобак', baseCost: 100 },
-  { key: 'armor', name: 'Броня кузова', baseCost: 110 },
-  { key: 'tips', name: 'Тариф VIP', baseCost: 150 }
-];
+let save = JSON.parse(localStorage.getItem('nd_taxi_save') || 'null') || {
+  money: 200,
+  bestTrips: 0,
+  carId: 0,
+  ownedCars: [0],
+  engine: 1,
+  tank: 1,
+  armor: 1,
+  vip: 1
+};
 
-function persist() { localStorage.setItem('nd_taxi_save', JSON.stringify(save)); }
-
-function renderGarage() {
-  document.getElementById('menuBank').textContent = 'Баланс: $ ' + save.money;
-  const carsRow = document.getElementById('carsRow');
-  carsRow.innerHTML = '';
-  CARS.forEach((c, idx) => {
-    const owned = save.ownedCars[idx];
-    const div = document.createElement('div');
-    div.className = 'car-card' + (save.car === idx ? ' active' : '');
-    div.innerHTML = `<div class="car-dot" style="background:${c.color}; box-shadow:0 0 8px ${c.color};"></div>
-      <div>${c.name}</div>
-      <div style="color:${owned ? '#2ef2a6' : '#ffd166'}; margin-top:3px;">${owned ? (save.car === idx ? 'Выбрана' : 'В гараже') : '$ ' + c.price}</div>`;
-    div.onclick = () => {
-      if (owned) { save.car = idx; persist(); renderGarage(); }
-      else if (save.money >= c.price) {
-        save.money -= c.price;
-        save.ownedCars[idx] = true;
-        save.car = idx;
-        Sfx.cash();
-        persist();
-        renderGarage();
-      }
-    };
-    carsRow.appendChild(div);
-  });
-
-  const grid = document.getElementById('garageGrid');
-  grid.innerHTML = '';
-  UPGRADES.forEach(u => {
-    const lvl = save.upg[u.key];
-    const cost = u.baseCost * lvl;
-    const maxed = lvl >= 6;
-    const card = document.createElement('div');
-    card.className = 'upg-card';
-    card.innerHTML = `<div class="upg-name">${u.name}</div>
-      <div class="upg-lvl">Уровень ${lvl} / 6</div>
-      <button class="upg-btn" ${maxed || save.money < cost ? 'disabled' : ''}>${maxed ? 'МАКС' : 'Улучшить $' + cost}</button>`;
-    card.querySelector('button').onclick = () => {
-      if (!maxed && save.money >= cost) {
-        save.money -= cost;
-        save.upg[u.key]++;
-        Sfx.cash();
-        persist();
-        renderGarage();
-      }
-    };
-    grid.appendChild(card);
-  });
+function persist() {
+  localStorage.setItem('nd_taxi_save', JSON.stringify(save));
 }
 
-// ПАРАМЕТРЫ СИМУЛЯТОРА ВОЖДЕНИЯ
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('roadCanvas');
 const ctx = canvas.getContext('2d');
-let W = 400, H = 700;
 
 function resize() {
-  const rect = canvas.parentElement.getBoundingClientRect();
-  W = canvas.width = rect.width;
-  H = canvas.height = rect.height;
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
 }
 window.addEventListener('resize', resize);
 resize();
 
-const LANES = 4;
-let running = false;
-let paused = false;
-let shiftMoney = 0;
-let tripsDone = 0;
-
-let player = {
-  x: 0,
-  y: 0,
-  w: 36,
-  h: 66,
-  speed: 0,
-  maxSpeed: 220,
-  fuel: 100,
-  maxFuel: 100,
-  hp: 100,
-  maxHp: 100,
-  tilt: 0
-};
-
-let roadOffset = 0;
-let traffic = [];
-let pickups = [];
-let particles = [];
-let popups = [];
-
-// Система заказов такси
-const PASSENGERS = [
-  'Бизнесмен -> Неон-Сити',
-  'Хакер -> Кибер-Порт',
-  'Диджей -> Клуб «Орбита»',
-  'Турист -> Башня Аврора',
-  'Врач -> Ночной Госпиталь',
-  'Гонщик -> Трек-Арена'
-];
-
-let mission = {
-  state: 'pickup', // 'pickup' или 'dropoff'
-  dist: 240,
-  reward: 120,
-  passengerName: PASSENGERS[0],
-  zoneY: -999,
-  zoneSide: 'right', // 'left' или 'right' обочина
-  zoneSpawned: false
-};
-
 const keys = { left: false, right: false, gas: false, brake: false };
 
-function bindHold(id, keyName) {
-  const el = document.getElementById(id);
-  const on = (e) => { e.preventDefault(); keys[keyName] = true; el.classList.add('pressed'); };
-  const off = (e) => { e.preventDefault(); keys[keyName] = false; el.classList.remove('pressed'); };
-  el.addEventListener('pointerdown', on);
-  el.addEventListener('pointerup', off);
-  el.addEventListener('pointerleave', off);
-  el.addEventListener('pointercancel', off);
+function bindHold(btnId, keyName) {
+  const el = document.getElementById(btnId);
+  const start = (e) => { e.preventDefault(); keys[keyName] = true; el.classList.add('pressed'); };
+  const end = (e) => { e.preventDefault(); keys[keyName] = false; el.classList.remove('pressed'); };
+  el.addEventListener('pointerdown', start);
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointerleave', end);
+  el.addEventListener('pointercancel', end);
 }
 bindHold('btnLeft', 'left');
 bindHold('btnRight', 'right');
@@ -568,11 +471,11 @@ bindHold('btnGas', 'gas');
 bindHold('btnBrake', 'brake');
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') togglePause();
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') keys.left = true;
   if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === 'в' || e.key === 'В') keys.right = true;
   if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === 'ц' || e.key === 'Ц') keys.gas = true;
   if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S' || e.key === 'ы' || e.key === 'Ы') keys.brake = true;
+  if (e.key === 'Escape') togglePause();
 });
 window.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') keys.left = false;
@@ -581,429 +484,423 @@ window.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S' || e.key === 'ы' || e.key === 'Ы') keys.brake = false;
 });
 
-document.getElementById('pauseBtn').onclick = () => togglePause();
+let running = false;
+let paused = false;
+let player = { x: 0, y: 0, w: 38, h: 68, speed: 0 };
+let roadOffset = 0;
+let distance = 0;
+let fuel = 100;
+let hp = 100;
+let shiftEarned = 0;
+let shiftTrips = 0;
+let traffic = [];
+let pickups = [];
+let mission = { state: 'pickup', targetDist: 450, stopTimer: 0 };
+let particles = [];
+
+function renderGarage() {
+  document.getElementById('menuMoney').textContent = save.money;
+  document.getElementById('menuBest').textContent = save.bestTrips;
+  document.getElementById('lvlEngine').textContent = save.engine;
+  document.getElementById('lvlTank').textContent = save.tank;
+  document.getElementById('lvlArmor').textContent = save.armor;
+  document.getElementById('lvlVip').textContent = save.vip;
+
+  const prices = {
+    engine: 150 * save.engine,
+    tank: 150 * save.tank,
+    armor: 150 * save.armor,
+    vip: 200 * save.vip
+  };
+  document.getElementById('buyEngine').textContent = 'Улучшить ($' + prices.engine + ')';
+  document.getElementById('buyTank').textContent = 'Улучшить ($' + prices.tank + ')';
+  document.getElementById('buyArmor').textContent = 'Улучшить ($' + prices.armor + ')';
+  document.getElementById('buyVip').textContent = 'Улучшить ($' + prices.vip + ')';
+
+  document.getElementById('buyEngine').disabled = save.money < prices.engine;
+  document.getElementById('buyTank').disabled = save.money < prices.tank;
+  document.getElementById('buyArmor').disabled = save.money < prices.armor;
+  document.getElementById('buyVip').disabled = save.money < prices.vip;
+
+  const carsRow = document.getElementById('carsRow');
+  carsRow.innerHTML = '';
+  CARS.forEach(c => {
+    const owned = save.ownedCars.includes(c.id);
+    const btn = document.createElement('button');
+    btn.className = 'car-chip' + (save.carId === c.id ? ' active' : '');
+    btn.innerHTML = c.name + '<br><span style="color:var(--gold)">' + (owned ? (save.carId === c.id ? 'Выбрано' : 'В гараже') : '$' + c.price) + '</span>';
+    btn.onclick = () => {
+      if (owned) {
+        save.carId = c.id;
+        persist();
+        renderGarage();
+      } else if (save.money >= c.price) {
+        save.money -= c.price;
+        save.ownedCars.push(c.id);
+        save.carId = c.id;
+        Sound.coin();
+        persist();
+        renderGarage();
+      }
+    };
+    carsRow.appendChild(btn);
+  });
+}
+
+['Engine', 'Tank', 'Armor', 'Vip'].forEach(type => {
+  document.getElementById('buy' + type).onclick = () => {
+    const key = type.toLowerCase();
+    const cost = (key === 'vip' ? 200 : 150) * save[key];
+    if (save.money >= cost) {
+      save.money -= cost;
+      save[key]++;
+      Sound.coin();
+      persist();
+      renderGarage();
+    }
+  };
+});
+
+function startShift() {
+  running = true;
+  paused = false;
+  fuel = 100;
+  hp = 100;
+  distance = 0;
+  shiftEarned = 0;
+  shiftTrips = 0;
+  traffic = [];
+  pickups = [];
+  particles = [];
+  mission = { state: 'pickup', targetDist: 420, stopTimer: 0 };
+
+  player.x = canvas.width * 0.62;
+  player.y = canvas.height * 0.80;
+  player.speed = 40;
+
+  document.getElementById('menuOverlay').classList.add('hidden');
+  document.getElementById('pauseOverlay').classList.add('hidden');
+  document.getElementById('overOverlay').classList.add('hidden');
+}
+
+function returnToGarage() {
+  running = false;
+  paused = false;
+  renderGarage();
+  document.getElementById('pauseOverlay').classList.add('hidden');
+  document.getElementById('overOverlay').classList.add('hidden');
+  document.getElementById('menuOverlay').classList.remove('hidden');
+}
 
 function togglePause(force) {
   if (!running) return;
   paused = typeof force === 'boolean' ? force : !paused;
   document.getElementById('pauseOverlay').classList.toggle('hidden', !paused);
 }
+document.getElementById('pauseBtn').onclick = () => togglePause();
 
 function toggleSound() {
-  Sfx.enabled = !Sfx.enabled;
-  document.getElementById('soundBtn').textContent = Sfx.enabled ? 'Звук: Вкл' : 'Звук: Выкл';
-}
-
-function returnToGarage() {
-  running = false;
-  paused = false;
-  document.getElementById('pauseOverlay').classList.add('hidden');
-  document.getElementById('endOverlay').classList.add('hidden');
-  renderGarage();
-  document.getElementById('menuOverlay').classList.remove('hidden');
-}
-
-function startShift() {
-  Sfx.init();
-  const carObj = CARS[save.car];
-  player.maxSpeed = 190 + save.upg.engine * 16 + carObj.speedBonus;
-  player.maxFuel = 100 + (save.upg.tank - 1) * 25;
-  player.maxHp = 100 + (save.upg.armor - 1) * 25;
-  player.fuel = player.maxFuel;
-  player.hp = player.maxHp;
-  player.speed = 60;
-  player.x = W * 0.5;
-  player.y = H * 0.72;
-  player.tilt = 0;
-
-  shiftMoney = 0;
-  tripsDone = 0;
-  traffic = [];
-  pickups = [];
-  particles = [];
-  popups = [];
-
-  newMission('pickup');
-  running = true;
-  paused = false;
-  document.getElementById('menuOverlay').classList.add('hidden');
-  document.getElementById('endOverlay').classList.add('hidden');
-  document.getElementById('pauseOverlay').classList.add('hidden');
-}
-
-function newMission(type) {
-  mission.state = type;
-  mission.zoneSpawned = false;
-  mission.zoneY = -999;
-  mission.zoneSide = Math.random() < 0.5 ? 'right' : 'left';
-  if (type === 'pickup') {
-    mission.dist = 160 + Math.floor(Math.random() * 120);
-    mission.passengerName = PASSENGERS[Math.floor(Math.random() * PASSENGERS.length)];
-    document.getElementById('naviStatus').textContent = 'ПОСАДКА КЛИЕНТА';
-    document.getElementById('naviStatus').style.color = '#2ef2a6';
-    document.getElementById('naviDesc').textContent = 'Притормозите в зелёной зоне!';
-  } else {
-    mission.dist = 320 + tripsDone * 45 + Math.floor(Math.random() * 160);
-    mission.reward = Math.floor((95 + mission.dist * 0.22) * (1 + (save.upg.tips - 1) * 0.25));
-    document.getElementById('naviStatus').textContent = 'ВЕЗЁМ ПАССАЖИРА ($' + mission.reward + ')';
-    document.getElementById('naviStatus').style.color = '#ffd166';
-    document.getElementById('naviDesc').textContent = mission.passengerName;
-  }
+  Sound.on = !Sound.on;
+  document.getElementById('soundBtn').textContent = Sound.on ? 'Звук: Вкл' : 'Звук: Выкл';
 }
 
 function endShift(reason) {
   running = false;
-  save.money += shiftMoney;
+  Sound.crash();
+  if (shiftTrips > save.bestTrips) save.bestTrips = shiftTrips;
   persist();
-  document.getElementById('endReason').textContent = reason;
-  document.getElementById('endEarned').textContent = 'Заработано за смену: $ ' + shiftMoney + ' (Заказов: ' + tripsDone + ')';
-  document.getElementById('endOverlay').classList.remove('hidden');
+  document.getElementById('overReason').textContent = reason;
+  document.getElementById('overStats').textContent = 'Выполнено заказов: ' + shiftTrips + ' • Заработано: $' + shiftEarned;
+  document.getElementById('overOverlay').classList.remove('hidden');
 }
 
-// СПАВН ТРАФИКА И БОНУСОВ
-let spawnTimer = 0;
-function spawnEntities(dt) {
-  spawnTimer -= dt;
-  if (spawnTimer > 0) return;
-  spawnTimer = Math.max(0.55, 1.35 - tripsDone * 0.04);
-
-  const roadMargin = W * 0.14;
-  const roadW = W - roadMargin * 2;
-  const laneW = roadW / LANES;
-  const lane = Math.floor(Math.random() * LANES);
-  const cx = roadMargin + laneW * (lane + 0.5);
-
-  // Проверка, чтобы машины не наезжали друг на друга при спавне
-  if (traffic.some(t => Math.abs(t.y - (-90)) < 130 && Math.abs(t.x - cx) < 30)) return;
-
-  const isOncoming = lane < 2; // Левые 2 полосы — встречка!
-  const colors = ['#4cc9f0', '#b5179e', '#f77f00', '#80ed99', '#e0fbfc'];
+function spawnTraffic() {
+  const roadLeft = canvas.width * 0.14;
+  const roadW = canvas.width * 0.72;
+  const laneW = roadW / 4;
+  const lane = Math.floor(Math.random() * 4);
+  const oncoming = lane < 2;
+  const colors = ['#ff4d6d', '#4cc9f0', '#b5179e', '#f8961e', '#90be6d'];
   traffic.push({
-    x: cx,
+    x: roadLeft + lane * laneW + laneW / 2,
     y: -90,
-    w: 34,
-    h: 64,
-    speed: isOncoming ? -(55 + Math.random() * 45) : (55 + Math.random() * 50),
-    color: colors[Math.floor(Math.random() * colors.length)],
-    oncoming: isOncoming
+    w: 36,
+    h: 66,
+    oncoming,
+    baseSpeed: oncoming ? (75 + Math.random() * 35) : (45 + Math.random() * 30),
+    color: colors[Math.floor(Math.random() * colors.length)]
   });
-
-  // Иногда спавним канистру топлива или ремкомплект на дороге
-  if (Math.random() < 0.32) {
-    const pLane = (lane + 1 + Math.floor(Math.random() * 2)) % LANES;
-    pickups.push({
-      x: roadMargin + laneW * (pLane + 0.5),
-      y: -150,
-      type: Math.random() < 0.65 ? 'fuel' : 'repair'
-    });
-  }
 }
 
-function addPopup(text, x, y, color) {
-  popups.push({ text, x, y, color, life: 1.2 });
+function spawnPickup() {
+  const roadLeft = canvas.width * 0.14;
+  const roadW = canvas.width * 0.72;
+  pickups.push({
+    x: roadLeft + 26 + Math.random() * (roadW - 52),
+    y: -40,
+    r: 15,
+    type: Math.random() < 0.55 ? 'fuel' : 'repair'
+  });
 }
 
 function spawnSparks(x, y, color) {
   for (let i = 0; i < 14; i++) {
     const a = Math.random() * Math.PI * 2;
-    const s = 60 + Math.random() * 140;
-    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, color, life: 0.6 });
+    const s = 1.5 + Math.random() * 4;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, color });
   }
 }
 
-// ОБНОВЛЕНИЕ ФИЗИКИ
-let lastTime = performance.now();
+let spawnTimer = 0;
+let itemTimer = 0;
+
 function update(dt) {
   if (!running || paused) return;
 
-  const roadMargin = W * 0.14;
-  const roadW = W - roadMargin * 2;
+  const car = CARS[save.carId];
+  const maxSpeed = 145 + save.engine * 16 + car.speedBonus;
 
-  // Разгон, торможение и руление
-  if (keys.gas) player.speed += 135 * dt;
-  else if (keys.brake) player.speed -= 240 * dt;
-  else player.speed -= 42 * dt; // Плавный накат
+  if (keys.gas) player.speed = Math.min(maxSpeed, player.speed + 135 * dt);
+  else if (keys.brake) player.speed = Math.max(0, player.speed - 230 * dt);
+  else player.speed = Math.max(0, player.speed - 45 * dt);
 
-  player.speed = Math.max(0, Math.min(player.maxSpeed, player.speed));
+  const steerSpeed = 240 + save.engine * 10;
+  if (keys.left) player.x -= steerSpeed * dt;
+  if (keys.right) player.x += steerSpeed * dt;
 
-  const steerSpeed = (160 + player.speed * 0.55);
-  if (keys.left) {
-    player.x -= steerSpeed * dt;
-    player.tilt = Math.max(-0.16, player.tilt - 1.8 * dt);
-  } else if (keys.right) {
-    player.x += steerSpeed * dt;
-    player.tilt = Math.min(0.16, player.tilt + 1.8 * dt);
-  } else {
-    player.tilt *= 0.85;
-  }
+  const roadLeft = canvas.width * 0.14;
+  const roadRight = canvas.width * 0.86;
+  player.x = Math.max(roadLeft + 22, Math.min(roadRight - 22, player.x));
 
-  // Ограничение по бордюрам
-  const minX = roadMargin + player.w * 0.5;
-  const maxX = W - roadMargin - player.w * 0.5;
-  if (player.x < minX) { player.x = minX; player.speed *= 0.96; }
-  if (player.x > maxX) { player.x = maxX; player.speed *= 0.96; }
+  const movePx = player.speed * 3.1 * dt;
+  roadOffset = (roadOffset + movePx) % 60;
+  distance += movePx * 0.25;
 
-  // Расход топлива
-  player.fuel -= (0.45 + (player.speed / player.maxSpeed) * 1.45) * dt;
-  if (player.fuel <= 0) {
-    player.fuel = 0;
-    endShift('Закончилось топливо! Собирайте золотые канистры на дороге.');
+  const fuelDrain = (0.8 + (player.speed / maxSpeed) * 2.1) / (1 + (save.tank - 1) * 0.22);
+  fuel -= fuelDrain * dt;
+  if (fuel <= 0) {
+    fuel = 0;
+    endShift('В баке закончилось топливо!');
     return;
   }
 
-  const pxPerSec = player.speed * 2.8;
-  roadOffset = (roadOffset + pxPerSec * dt) % 80;
+  // Зона посадки/высадки
+  const distToTarget = mission.targetDist - distance;
+  const zoneY = player.y - distToTarget * 4;
+  const inZone = Math.abs(zoneY - player.y) < 55 && player.x > roadRight - 65;
 
-  // Прогресс маршрута навигатора
-  if (mission.dist > 0) {
-    mission.dist = Math.max(0, mission.dist - (player.speed * 0.28) * dt);
-    if (mission.dist <= 45 && !mission.zoneSpawned) {
-      mission.zoneSpawned = true;
-      mission.zoneY = -120;
-    }
-  }
-
-  // Движение зоны посадки / высадки
-  if (mission.zoneSpawned) {
-    mission.zoneY += pxPerSec * dt;
-    const zoneX = mission.zoneSide === 'right' ? W - roadMargin - 34 : roadMargin + 34;
-    const inZoneX = Math.abs(player.x - zoneX) < 42;
-    const inZoneY = Math.abs(player.y - mission.zoneY) < 62;
-
-    if (inZoneX && inZoneY && player.speed < 48) {
+  if (inZone && player.speed < 18) {
+    mission.stopTimer += dt;
+    document.getElementById('navBanner').textContent = 'ОСТАНОВКА... Удерживайте тормоз (' + Math.min(100, Math.floor(mission.stopTimer * 100)) + '%)';
+    if (mission.stopTimer >= 1.0) {
+      mission.stopTimer = 0;
       if (mission.state === 'pickup') {
-        Sfx.pickup();
-        addPopup('ПАССАЖИР В САЛОНЕ!', player.x, player.y - 40, '#2ef2a6');
-        newMission('dropoff');
+        mission.state = 'dropoff';
+        mission.targetDist = distance + 550 + Math.random() * 350;
+        Sound.pickup();
       } else {
-        Sfx.cash();
-        shiftMoney += mission.reward;
-        tripsDone++;
-        addPopup('+$' + mission.reward + ' ОПЛАТА!', player.x, player.y - 45, '#ffd166');
-        newMission('pickup');
+        const reward = Math.floor((140 + Math.random() * 80) * (1 + (save.vip - 1) * 0.35));
+        save.money += reward;
+        shiftEarned += reward;
+        shiftTrips++;
+        persist();
+        Sound.coin();
+        spawnSparks(player.x, player.y, '#ffd166');
+        mission.state = 'pickup';
+        mission.targetDist = distance + 450 + Math.random() * 250;
       }
-    } else if (mission.zoneY > H + 120) {
-      // Если проскочил остановку — навигатор строит разворот через 90 м
-      mission.zoneSpawned = false;
-      mission.dist = 90;
-      addPopup('ПРОЕХАЛИ ОСТАНОВКУ! +90м', W * 0.5, H * 0.35, '#ff4d4d');
+    }
+  } else {
+    mission.stopTimer = 0;
+    if (distToTarget < -120) {
+      mission.targetDist = distance + 420;
+    }
+    const meters = Math.max(0, Math.round(distToTarget));
+    if (mission.state === 'pickup') {
+      document.getElementById('navBanner').textContent = meters > 35
+        ? 'КЛИЕНТ ЖДЁТ: ' + meters + ' м впереди справа'
+        : 'ПРИЖМИТЕСЬ ВПРАВО И ЗАТОРМОЗИТЕ У ЗЕЛЁНОЙ ЗОНЫ!';
+    } else {
+      document.getElementById('navBanner').textContent = meters > 35
+        ? 'ВЕЗЁМ ПАССАЖИРА: ' + meters + ' м до точки высадки'
+        : 'ТОЧКА ВЫСАДКИ! ПРИЖМИТЕСЬ ВПРАВО И ОСТАНОВИТЕСЬ!';
     }
   }
 
-  spawnEntities(dt);
+  spawnTimer += dt;
+  if (spawnTimer > 1.05) {
+    spawnTimer = 0;
+    if (traffic.length < 6) spawnTraffic();
+  }
 
-  // Обновление трафика и столкновений
+  itemTimer += dt;
+  if (itemTimer > 4.2) {
+    itemTimer = 0;
+    spawnPickup();
+  }
+
+  const dmgMult = 1 / (1 + (save.armor - 1) * 0.25);
   for (let i = traffic.length - 1; i >= 0; i--) {
     const t = traffic[i];
-    const relSpeed = (player.speed - t.speed) * 2.8;
-    t.y += relSpeed * dt;
+    const relSpeed = t.oncoming ? (player.speed + t.baseSpeed) : (player.speed - t.baseSpeed);
+    t.y += relSpeed * 3.1 * dt;
 
-    if (t.y > H + 140 || t.y < -260) {
-      traffic.splice(i, 1);
-      continue;
-    }
-
-    if (Math.abs(player.x - t.x) < (player.w + t.w) * 0.44 && Math.abs(player.y - t.y) < (player.h + t.h) * 0.44) {
-      Sfx.crash();
-      const dmg = Math.max(12, Math.floor(Math.abs(player.speed - t.speed) * 0.18));
-      player.hp -= dmg;
+    if (Math.abs(t.x - player.x) < (t.w + player.w) * 0.44 && Math.abs(t.y - player.y) < (t.h + player.h) * 0.44) {
+      hp -= 28 * dmgMult;
       player.speed *= 0.35;
-      spawnSparks((player.x + t.x) / 2, (player.y + t.y) / 2, '#ff4d4d');
-      addPopup('-' + dmg + ' ПРОЧНОСТЬ', player.x, player.y - 30, '#ff4d4d');
+      Sound.crash();
+      spawnSparks((t.x + player.x) / 2, (t.y + player.y) / 2, '#ff2e93');
       traffic.splice(i, 1);
-
-      if (player.hp <= 0) {
-        player.hp = 0;
-        endShift('Машина разбита! Улучшайте броню в гараже.');
+      if (hp <= 0) {
+        hp = 0;
+        endShift('Машина разбита в ДТП!');
         return;
       }
+      continue;
     }
+    if (t.y > canvas.height + 140 || t.y < -260) traffic.splice(i, 1);
   }
 
-  // Подбор канистр и ремкомплектов
   for (let i = pickups.length - 1; i >= 0; i--) {
     const p = pickups[i];
-    p.y += pxPerSec * dt;
-    if (p.y > H + 80) { pickups.splice(i, 1); continue; }
-
-    if (Math.abs(player.x - p.x) < 34 && Math.abs(player.y - p.y) < 42) {
-      Sfx.fuel();
-      if (p.type === 'fuel') {
-        player.fuel = Math.min(player.maxFuel, player.fuel + 35);
-        addPopup('+ТОПЛИВО', p.x, p.y, '#ffd166');
-      } else {
-        player.hp = Math.min(player.maxHp, player.hp + 30);
-        addPopup('+РЕМОНТ', p.x, p.y, '#2ef2a6');
-      }
+    p.y += player.speed * 3.1 * dt;
+    if (Math.hypot(p.x - player.x, p.y - player.y) < 38) {
+      if (p.type === 'fuel') fuel = Math.min(100, fuel + 35);
+      else hp = Math.min(100, hp + 35);
+      Sound.coin();
+      spawnSparks(p.x, p.y, p.type === 'fuel' ? '#ffd166' : '#2ef2a6');
       pickups.splice(i, 1);
+      continue;
     }
+    if (p.y > canvas.height + 80) pickups.splice(i, 1);
   }
 
   for (let i = particles.length - 1; i >= 0; i--) {
     const pt = particles[i];
-    pt.x += pt.vx * dt;
-    pt.y += pt.vy * dt;
-    pt.life -= dt;
+    pt.x += pt.vx;
+    pt.y += pt.vy;
+    pt.life -= 0.035;
     if (pt.life <= 0) particles.splice(i, 1);
   }
-  for (let i = popups.length - 1; i >= 0; i--) {
-    const pp = popups[i];
-    pp.y -= 35 * dt;
-    pp.life -= dt;
-    if (pp.life <= 0) popups.splice(i, 1);
-  }
 
-  // Обновление HUD
-  document.getElementById('hudMoney').textContent = '$ ' + (save.money + shiftMoney);
-  document.getElementById('hudSpeed').textContent = Math.round(player.speed) + ' км/ч';
-  document.getElementById('hudTrips').textContent = 'Заказов: ' + tripsDone;
-  document.getElementById('naviDist').textContent = Math.round(mission.dist) + ' м';
-
-  const fPct = Math.round((player.fuel / player.maxFuel) * 100);
-  const hPct = Math.round((player.hp / player.maxHp) * 100);
-  document.getElementById('fuelPct').textContent = fPct + '%';
-  document.getElementById('fuelFill').style.width = fPct + '%';
-  document.getElementById('hpPct').textContent = hPct + '%';
-  document.getElementById('hpFill').style.width = hPct + '%';
+  document.getElementById('moneyVal').textContent = save.money;
+  document.getElementById('speedVal').textContent = Math.round(player.speed);
+  document.getElementById('tripsVal').textContent = shiftTrips;
+  document.getElementById('fuelPct').textContent = Math.round(fuel) + '%';
+  document.getElementById('fuelFill').style.width = fuel + '%';
+  document.getElementById('hpPct').textContent = Math.round(hp) + '%';
+  document.getElementById('hpFill').style.width = hp + '%';
 }
 
-// ОТРИСОВКА НОЧНОГО ГОРОДА И МАШИН
-function drawCar(x, y, w, h, color, accent, tilt = 0, isTaxi = false, oncoming = false) {
+function drawCar(x, y, w, h, color, accent, isTaxi, oncoming) {
   ctx.save();
   ctx.translate(x, y);
-  ctx.rotate(tilt);
+  if (oncoming) ctx.rotate(Math.PI);
 
   // Свет фар
-  if (!oncoming) {
-    const beam = ctx.createLinearGradient(0, -h * 0.4, 0, -h * 2.3);
-    beam.addColorStop(0, 'rgba(255, 250, 210, 0.32)');
-    beam.addColorStop(1, 'rgba(255, 250, 210, 0)');
-    ctx.fillStyle = beam;
-    ctx.beginPath();
-    ctx.moveTo(-w * 0.35, -h * 0.45);
-    ctx.lineTo(-w * 1.1, -h * 2.3);
-    ctx.lineTo(w * 1.1, -h * 2.3);
-    ctx.lineTo(w * 0.35, -h * 0.45);
-    ctx.fill();
-  } else {
-    const beam = ctx.createLinearGradient(0, h * 0.4, 0, h * 2.1);
-    beam.addColorStop(0, 'rgba(255, 90, 90, 0.32)');
-    beam.addColorStop(1, 'rgba(255, 90, 90, 0)');
-    ctx.fillStyle = beam;
-    ctx.beginPath();
-    ctx.moveTo(-w * 0.35, h * 0.45);
-    ctx.lineTo(-w * 1.0, h * 2.1);
-    ctx.lineTo(w * 1.0, h * 2.1);
-    ctx.lineTo(w * 0.35, h * 0.45);
-    ctx.fill();
-  }
-
-  // Корпус
-  ctx.fillStyle = color;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 10;
+  const grad = ctx.createLinearGradient(0, -h / 2, 0, -h / 2 - 75);
+  grad.addColorStop(0, 'rgba(255, 250, 210, 0.34)');
+  grad.addColorStop(1, 'rgba(255, 250, 210, 0)');
+  ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.roundRect(-w / 2, -h / 2, w, h, 8);
+  ctx.moveTo(-w * 0.35, -h / 2);
+  ctx.lineTo(-w * 0.85, -h / 2 - 75);
+  ctx.lineTo(w * 0.85, -h / 2 - 75);
+  ctx.lineTo(w * 0.35, -h / 2);
   ctx.fill();
-  ctx.shadowBlur = 0;
+
+  // Кузов
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(-w / 2, -h / 2, w, h, 9);
+  ctx.fill();
 
   // Лобовое и заднее стекло
-  ctx.fillStyle = '#0d1326';
+  ctx.fillStyle = '#10182b';
   ctx.beginPath();
   ctx.roundRect(-w * 0.36, -h * 0.24, w * 0.72, h * 0.46, 5);
   ctx.fill();
 
-  // Шашечки такси на крыше
+  // Шашечки такси
   if (isTaxi) {
     ctx.fillStyle = accent;
-    ctx.fillRect(-w * 0.25, -4, w * 0.5, 8);
+    ctx.fillRect(-w * 0.26, -4, w * 0.52, 8);
+    ctx.fillStyle = '#ffd166';
+    ctx.fillRect(-w * 0.14, -3, w * 0.28, 6);
   }
 
-  // Стоп-сигналы при торможении
-  if (isTaxi && keys.brake) {
-    ctx.fillStyle = '#ff2a2a';
-    ctx.shadowColor = '#ff2a2a';
-    ctx.shadowBlur = 12;
-    ctx.fillRect(-w * 0.42, h * 0.44, 8, 5);
-    ctx.fillRect(w * 0.42 - 8, h * 0.44, 8, 5);
-    ctx.shadowBlur = 0;
-  }
-
+  // Задние стоп-сигналы
+  ctx.fillStyle = '#ff2e63';
+  ctx.fillRect(-w * 0.4, h / 2 - 4, 8, 4);
+  ctx.fillRect(w * 0.4 - 8, h / 2 - 4, 8, 4);
   ctx.restore();
 }
 
 function draw() {
-  ctx.fillStyle = '#070913';
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Обочины
+  ctx.fillStyle = '#090c18';
   ctx.fillRect(0, 0, W, H);
 
-  const roadMargin = W * 0.14;
-  const roadW = W - roadMargin * 2;
-  const laneW = roadW / LANES;
+  const roadLeft = W * 0.14;
+  const roadW = W * 0.72;
 
   // Асфальт
-  ctx.fillStyle = '#11162b';
-  ctx.fillRect(roadMargin, 0, roadW, H);
+  ctx.fillStyle = '#151b2e';
+  ctx.fillRect(roadLeft, 0, roadW, H);
 
-  // Неоновые бордюры и ночные здания по бокам
+  // Неоновые бордюры
   ctx.fillStyle = '#00f0ff';
-  ctx.fillRect(roadMargin - 3, 0, 3, H);
+  ctx.fillRect(roadLeft - 4, 0, 4, H);
   ctx.fillStyle = '#ff2e93';
-  ctx.fillRect(W - roadMargin, 0, 3, H);
+  ctx.fillRect(roadLeft + roadW, 0, 4, H);
 
-  for (let y = roadOffset - 80; y < H + 80; y += 80) {
-    // Декоративные огни витрин на обочинах
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.14)';
-    ctx.fillRect(8, y + 10, roadMargin - 18, 48);
-    ctx.fillStyle = 'rgba(255, 46, 147, 0.14)';
-    ctx.fillRect(W - roadMargin + 10, y + 25, roadMargin - 18, 48);
+  // Двойная сплошная по центру (встречка / попутная)
+  ctx.fillStyle = '#ffd166';
+  ctx.fillRect(roadLeft + roadW / 2 - 3, 0, 2, H);
+  ctx.fillRect(roadLeft + roadW / 2 + 1, 0, 2, H);
 
-    // Разметка полос
-    for (let l = 1; l < LANES; l++) {
-      const lx = roadMargin + laneW * l;
-      if (l === 2) {
-        // Двойная сплошная осевая линия
-        ctx.fillStyle = 'rgba(255, 209, 102, 0.55)';
-        ctx.fillRect(lx - 2, y, 2, 80);
-        ctx.fillRect(lx + 2, y, 2, 80);
-      } else {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.fillRect(lx - 1.5, y + 15, 3, 42);
-      }
+  // Пунктирная разметка полос
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+  for (let y = roadOffset - 60; y < H; y += 60) {
+    ctx.fillRect(roadLeft + roadW * 0.25 - 2, y, 4, 30);
+    ctx.fillRect(roadLeft + roadW * 0.75 - 2, y, 4, 30);
+  }
+
+  // Зелёная зона посадки/высадки
+  if (running) {
+    const distToTarget = mission.targetDist - distance;
+    const zoneY = player.y - distToTarget * 4;
+    if (zoneY > -120 && zoneY < H + 120) {
+      ctx.save();
+      ctx.strokeStyle = mission.state === 'pickup' ? '#2ef2a6' : '#00f0ff';
+      ctx.fillStyle = mission.state === 'pickup' ? 'rgba(46, 242, 166, 0.22)' : 'rgba(0, 240, 255, 0.22)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(roadLeft + roadW - 58, zoneY - 46, 54, 92, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(mission.state === 'pickup' ? 'ПОСАДКА' : 'ВЫСАДКА', roadLeft + roadW - 31, zoneY + 4);
+      ctx.restore();
     }
   }
 
-  // Зона посадки или высадки пассажира
-  if (mission.zoneSpawned) {
-    const zx = mission.zoneSide === 'right' ? W - roadMargin - 34 : roadMargin + 34;
-    const zColor = mission.state === 'pickup' ? '#2ef2a6' : '#ffd166';
-    ctx.save();
-    ctx.strokeStyle = zColor;
-    ctx.lineWidth = 3;
-    ctx.fillStyle = mission.state === 'pickup' ? 'rgba(46, 242, 166, 0.2)' : 'rgba(255, 209, 102, 0.2)';
-    ctx.beginPath();
-    ctx.roundRect(zx - 28, mission.zoneY - 46, 56, 92, 12);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = zColor;
-    ctx.font = '900 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(mission.state === 'pickup' ? 'ПОСАДКА' : 'ВЫСАДКА', zx, mission.zoneY - 4);
-    ctx.fillText('СТОП!', zx, mission.zoneY + 12);
-    ctx.restore();
-  }
-
-  // Бонусы на дороге (топливо и ремонт)
+  // Бонусы на дороге
   pickups.forEach(p => {
     ctx.save();
     ctx.fillStyle = p.type === 'fuel' ? '#ffd166' : '#2ef2a6';
-    ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = 12;
     ctx.beginPath();
-    ctx.roundRect(p.x - 14, p.y - 14, 28, 28, 7);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#07101e';
-    ctx.font = '900 13px sans-serif';
+    ctx.font = '900 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(p.type === 'fuel' ? 'F' : '+', p.x, p.y + 1);
@@ -1011,35 +908,24 @@ function draw() {
   });
 
   // Трафик
-  traffic.forEach(t => drawCar(t.x, t.y, t.w, t.h, t.color, '#fff', 0, false, t.oncoming));
+  traffic.forEach(t => drawCar(t.x, t.y, t.w, t.h, t.color, '#111', false, t.oncoming));
 
   // Машина игрока
-  const carObj = CARS[save.car];
-  drawCar(player.x, player.y, player.w, player.h, carObj.color, carObj.accent, player.tilt, true, false);
+  const car = CARS[save.carId];
+  drawCar(player.x, player.y, player.w, player.h, car.color, car.accent, true, false);
 
-  // Частицы и всплывающие надписи
+  // Частицы
   particles.forEach(pt => {
-    ctx.globalAlpha = Math.max(0, pt.life);
+    ctx.globalAlpha = pt.life;
     ctx.fillStyle = pt.color;
     ctx.beginPath();
     ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
   });
-
-  popups.forEach(pp => {
-    ctx.save();
-    ctx.globalAlpha = Math.min(1, pp.life);
-    ctx.font = '900 15px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = pp.color;
-    ctx.shadowColor = '#000';
-    ctx.shadowBlur = 8;
-    ctx.fillText(pp.text, pp.x, pp.y);
-    ctx.restore();
-  });
 }
 
+let lastTime = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
